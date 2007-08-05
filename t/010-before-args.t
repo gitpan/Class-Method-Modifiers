@@ -3,8 +3,10 @@ use strict;
 use warnings;
 use Test::More tests => 1;
 
+my $storage = "Foo";
+
 my $child = Child->new();
-is($child->orig("Foo"), "foo", "before didn't affect orig's args");
+is($child->orig($storage), "before foo", "before affected orig's args a little");
 
 BEGIN
 {
@@ -26,7 +28,10 @@ BEGIN
     before 'orig' => sub
     {
         my $self = shift;
+        $_[0] = 'Before ' . $_[0];
+
         my $discard = shift;
+        $discard = "will never be seen";
         return ["lc on an arrayref? ha ha ha"];
     };
 }

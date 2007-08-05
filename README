@@ -1,11 +1,13 @@
-Class-Method-Modifiers 0.01
+Class-Method-Modifiers 0.02
 
 Class::Method::Modifiers is a lightweight module that lets you easily "just"
 modify methods. The ideas are stolen directly from Stevan Little's Moose (which
-borrows heavily from the universally-acclaimed CLOS). The implementation is
-straight out of my head, though (with an unknowing assist by Simon Cozens).
+borrows heavily from the universally-acclaimed CLOS and Perl 6). The
+implementation is straight out of my head, though (with an unknowing assist by
+Simon Cozens).
 
 MAJOR CHANGES
+    0.02: support for multiple modifiers in one class
     0.01: first version
 
 INSTALLATION
@@ -16,7 +18,6 @@ To install this module, run the following commands:
     make
     make test
     make install
-
 
 SUPPORT AND DOCUMENTATION
 

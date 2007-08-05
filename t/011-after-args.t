@@ -32,7 +32,7 @@ BEGIN
     {
         my $self = shift;
         my $arg = shift;
-        $after_saw_orig_args = $arg eq "Foo";
+        $after_saw_orig_args = $arg eq "bAR";
         return sub { die "somehow a closure was executed" };
     };
 }

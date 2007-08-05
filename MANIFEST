@@ -15,12 +15,17 @@ Makefile.PL
 MANIFEST			This list of files
 META.yml
 README
-t/00-load.t
-t/01-before.t
-t/02-after.t
-t/03-around.t
-t/10-before-args.t
-t/11-after-args.t
-t/12-around-args.t
-t/20-multiple-inheritance.t
-t/50-error.t
+t/000-load.t
+t/001-before.t
+t/002-after.t
+t/003-around.t
+t/010-before-args.t
+t/011-after-args.t
+t/012-around-args.t
+t/020-multiple-inheritance.t
+t/050-error.t
+t/051-undef-list-ctxt.t
+t/052-modify-and-sub.t
+t/053-redefine-modifier.t
+t/060-caller.t
+t/080-multiple-modifiers.t

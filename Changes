@@ -1,5 +1,11 @@
 Revision history for Class-Method-Modifiers
 
+0.02    Sun Aug  5 16:42:43 2007
+        No need to shallow-copy @_
+        Don't stick a super method in UNIVERSAL (mst)
+        Let multiple modifiers coexist in one class
+        Better error checking
+
 0.01    Sun Aug  5 06:10:30 2007
         First version, released on an unsuspecting world.
 
