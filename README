@@ -1,4 +1,4 @@
-Class-Method-Modifiers 0.02
+Class-Method-Modifiers 0.03
 
 Class::Method::Modifiers is a lightweight module that lets you easily "just"
 modify methods. The ideas are stolen directly from Stevan Little's Moose (which
@@ -7,6 +7,9 @@ implementation is straight out of my head, though (with an unknowing assist by
 Simon Cozens).
 
 MAJOR CHANGES
+    0.03: C3 should work now
+          support for multiple modifiers of the same kind in one class
+
     0.02: support for multiple modifiers in one class
     0.01: first version
 

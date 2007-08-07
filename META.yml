@@ -18,6 +18,7 @@ no_index:
 requires: 
   Carp: 0
   Exporter: 0
+  MRO::Compat: 0
   Scalar::Util: 0
   parent: 0
-version: 0.02
+version: 0.03

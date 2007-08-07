@@ -9,6 +9,7 @@ requires       'parent';
 requires       'Scalar::Util';
 requires       'Carp';
 requires       'Exporter';
+requires       'MRO::Compat';
 
 build_requires 'Test::More';
 build_requires 'base'; # not using parent: we use unstable part of interface

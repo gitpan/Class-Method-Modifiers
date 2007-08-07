@@ -5,69 +5,76 @@ use warnings;
 use parent 'Exporter';
 use Carp;
 use Scalar::Util 'blessed';
+use MRO::Compat;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 our @EXPORT = qw(before around after);
 
+# this is a dynamically scoped variable that has, during an around, the arounds
+# that must be called "inside" that around. this includes the original method.
+# implemented so multiple arounds by the same class does the right thing
+our @AROUNDS_LEFT;
+
+# keeps track of what modifiers we've defined
 my %method_cache;
+
 my %type_expand = (A => "after", B => "before", C => "around");
-
-# <magic author="cozens">
-# this will find where a method would have dispatched to if class->method
-# didn't already exist. modified a little, but the idea is all his
-my $find_super = sub
-{
-    my ($class, $method, $force_pkg) = @_;
-
-       if ($force_pkg)     { $class = $force_pkg }
-    elsif (blessed $class) { $class = blessed $class }
-
-    my $coderef;
-
-    no strict 'refs';
-    for (@{$class."::ISA"})
-    {
-        return $coderef if $coderef = $_->can($method);
-    }
-
-    return;
-};
-# </magic>
 
 # this is the method that gets injected into each class
 sub _resolve
 {
     my $methodname = shift;
     my $package    = shift;
-    my $dispatch = $_[0]->$find_super($methodname, $package);
+    my $dispatch;
 
-    if (!$dispatch)
+    # see where we'd dispatch to next. mro's next::method doesn't let us do
+    # next-method resolution as a third party :(
+    SEARCH:
     {
+        no strict 'refs';
+
+        my @mro = @{ mro::get_linear_isa($package) };
+        shift @mro; # get_linear_isa annoyingly returns self as well
+        for (@mro)
+        {
+            next unless exists *{$_.'::'}->{$methodname};
+            $dispatch = \&{$_.'::'.$methodname};
+            last SEARCH;
+        }
+
         Carp::croak "Modifier of '$methodname' failed: $methodname doesn't exist in " . blessed($_[0]) . "'s inheritance hierarchy";
     }
 
     my $qualified = $package . '::' . $methodname;
 
-    my $before = $method_cache{"B$qualified"};
-    my $after  = $method_cache{"A$qualified"};
-    my $around = $method_cache{"C$qualified"};
+    my $before = $method_cache{"B$qualified"} || [];
+    my $after  = $method_cache{"A$qualified"} || [];
+    my $around = $method_cache{"C$qualified"} || [];
 
-    $before->(@_) if $before;
+    for (@$before)
+    {
+        $_->(@_);
+    }
 
     my @ret;
-    if (wantarray)
+
     {
-        @ret = $around ? $around->($dispatch, @_)
-                       : $dispatch->(@_);
-    }
-    else
-    {
-        $ret[0] = $around ? $around->($dispatch, @_)
-                          : $dispatch->(@_);
+        local @AROUNDS_LEFT = (@$around, $dispatch);
+        if (wantarray)
+        {
+            @ret = _orig(@_);
+        }
+        else
+        {
+            $ret[0] = _orig(@_);
+        }
     }
 
-    $after->(@_) if $after;
+    for (@$after)
+    {
+        $_->(@_);
+    }
 
     return wantarray ? @ret : $ret[0];
 }
@@ -78,57 +85,84 @@ sub _install
     my $mod_type   = shift;
     my $methodname = shift;
     my $modifier   = shift;
-    my $package    = caller;
+    my $package    = caller(1);
     my $qualified  = $package . '::' . $methodname;
-
-    # saying 'around', 'around' on the same method is probably a mistake
-    if (exists $method_cache{"$mod_type$qualified"})
-    {
-        Carp::croak "Redefinition of '$type_expand{$mod_type} $methodname' in $package"
-    }
-
-    $method_cache{"$mod_type$qualified"} = $modifier;
+    my $already_installed = 0;
 
     no strict 'refs';
-
     if (exists *{$package.'::'}->{$methodname})
     {
-        my @othertypes;
-        @othertypes = qw/B C/ if $mod_type eq 'A';
-        @othertypes = qw/A C/ if $mod_type eq 'B';
-        @othertypes = qw/A B/ if $mod_type eq 'C';
+        $already_installed = 1;
 
-        # it's OK to have multiple different kinds of modifiers
-        return if exists $method_cache{"$othertypes[0]$qualified"}
-               || exists $method_cache{"$othertypes[1]$qualified"};
+        # if we have an existing method, and we don't know about it, that is
+        # a "sub foo" that we probably don't want
+        if (!exists($method_cache{"A$qualified"})
+         && !exists($method_cache{"B$qualified"})
+         && !exists($method_cache{"C$qualified"}))
+        {
+            # it's not ok to say 'sub foo' 'around foo =>'
+            Carp::croak "You have seem to have both 'sub $methodname' and \"$type_expand{$mod_type} '$methodname'\" in $package";
+        }
+    }
 
-        # it's not ok to say 'sub foo' 'around foo =>'
-        Carp::croak "You have seem to have both 'sub $methodname' and \"$mod_type '$methodname'\" in $package";
+    if ($mod_type eq 'A')
+    {
+        # after methods work in the order they were defined
+        push @{$method_cache{"A$qualified"}}, $modifier;
+    }
+    else
+    {
+        # before and around are the opposite
+        unshift @{$method_cache{"$mod_type$qualified"}}, $modifier;
     }
 
     *{$qualified} = sub
     {
         unshift @_, $methodname, $package;
         goto &_resolve;
+    } unless $already_installed;
+}
+
+# this implements the magic needed for multiple "around"s in one class
+# this is the function that is actually called when you invoke $orig, it
+# figures out what to dispatch to next. it does so using the dynamically scoped
+# @AROUNDS_LEFT, which is set for us by _resolve
+sub _orig
+{
+    if (my $next = shift @AROUNDS_LEFT)
+    {
+        # need to set up the next $orig
+        unshift @_, \&_orig if @AROUNDS_LEFT;
+
+        goto &$next;
     }
 }
 
-sub before($&)
+sub before
 {
-    unshift @_, "B";
-    goto \&_install;
+    my $modifier = pop;
+    for (@_)
+    {
+        _install('B', $_, $modifier);
+    }
 }
 
-sub after($&)
+sub after
 {
-    unshift @_, "A";
-    goto \&_install;
+    my $modifier = pop;
+    for (@_)
+    {
+        _install('A', $_, $modifier);
+    }
 }
 
-sub around($&)
+sub around
 {
-    unshift @_, "C";
-    goto \&_install;
+    my $modifier = pop;
+    for (@_)
+    {
+        _install('C', $_, $modifier);
+    }
 }
 
 =head1 NAME
@@ -137,7 +171,7 @@ Class::Method::Modifiers - provides Moose-like method modifiers
 
 =head1 VERSION
 
-Version 0.02 released 05 Aug 07
+Version 0.03 released 06 Aug 07
 
 =head1 SYNOPSIS
 
@@ -165,7 +199,7 @@ Version 0.02 released 05 Aug 07
 
 All three modifiers; C<before>, C<after>, and C<around>; are exported into your
 namespace by default. You may C<use Class::Method::Modifiers ()> to avoid
-thrashing your namespace. I may steal more features from Moose, namely
+thrashing your namespace. I may steal more features from L<Moose>, namely
 C<super>, C<override>, C<inner>, C<augment>, and whatever the L<Moose> folks
 come up with next.
 
@@ -175,7 +209,7 @@ from L<Moose> (the implementations, however, are not).
 Parent classes need not know about C<Class::Method::Modifiers>. This means you
 should be able to modify methods in I<any> subclass.
 
-=head2 before
+=head2 before method(s) => sub { ... }
 
 C<before> is called before the method it is modifying. Its return value is
 totally ignored. It receives the same C<@_> as the the method it is modifying
@@ -183,7 +217,7 @@ would have received. You can modify the C<@_> the original method will receive
 by changing C<$_[0]> and friends (or by changing anything inside a reference).
 This is a feature!
 
-=head2 after
+=head2 after method(s) => sub { ... }
 
 C<after> is called after the method it is modifying. Its return value is
 totally ignored. It receives the same C<@_> as the the method it is modifying
@@ -192,7 +226,7 @@ C<$_[0]> or references) and C<after> will see the modified version. If you
 don't like this behavior, specify both a C<before> and C<after>, and copy the
 C<@_> during C<before> for C<after> to use.
 
-=head2 around
+=head2 around method(s) => sub { ... }
 
 C<around> is called instead of the method it is modifying. The method you're
 overriding is passed in as the first argument (called C<$orig> by convention).
@@ -235,15 +269,11 @@ It is erroneous to modify a method that doesn't exist in your class's
 inheritance hierarchy. If this occurs, an exception will be thrown when
 the method is invoked.
 
-It uses a small amount of Cozens magic to figure out how to call the method in
-your inheritance hierarchy. I'm not sure how well this will play with Brandon
-Black's C3 MRO.
-
 It doesn't yet play well with C<caller>. There are some todo tests for this.
 
 =head1 SEE ALSO
 
-C<Moose>, C<Class::MOP::Method::Wrapped>, C<rubyism>, CLOS
+L<Moose>, L<Class::MOP::Method::Wrapped>, L<MRO::Compat>, CLOS
 
 =head1 AUTHOR
 
@@ -285,13 +315,10 @@ L<http://search.cpan.org/dist/Class-Method-Modifiers>
 
 =head1 ACKNOWLEDGEMENTS
 
-Thanks to Stevan Little for Moose, I would never have even known about method
-modifiers otherwise.
+Thanks to Stevan Little for L<Moose>, I would never have known about
+method modifiers otherwise.
 
 Thanks to Matt Trout and Stevan Little for their advice.
-
-Thanks to Simon Cozens for writing L<rubyisms>, from which this module borrowed
-some magic.
 
 =head1 COPYRIGHT & LICENSE
 
