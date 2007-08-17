@@ -7,7 +7,7 @@ use Carp;
 use Scalar::Util 'blessed';
 use MRO::Compat;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 our @EXPORT = qw(before around after);
 
@@ -26,27 +26,31 @@ sub _resolve
 {
     my $methodname = shift;
     my $package    = shift;
-    my $dispatch;
+    my $qualified  = $package . '::' . $methodname;
+    my $dispatch   = $method_cache{"X$qualified"};
 
-    # see where we'd dispatch to next. mro's next::method doesn't let us do
-    # next-method resolution as a third party :(
-    SEARCH:
+    if (!$dispatch)
     {
-        no strict 'refs';
-
-        my @mro = @{ mro::get_linear_isa($package) };
-        shift @mro; # get_linear_isa annoyingly returns self as well
-        for (@mro)
+        # see where we'd dispatch to next. mro's next::method doesn't let us do
+        # next-method resolution as a third party :(
+        SEARCH:
         {
-            next unless exists *{$_.'::'}->{$methodname};
-            $dispatch = \&{$_.'::'.$methodname};
-            last SEARCH;
+            no strict 'refs';
+
+            my @mro = @{ mro::get_linear_isa($package) };
+            shift @mro; # get_linear_isa annoyingly returns self as well
+            for (@mro)
+            {
+                next unless exists *{$_.'::'}->{$methodname};
+                $dispatch = \&{$_.'::'.$methodname};
+                last SEARCH;
+            }
+
+            Carp::croak "Modifier of '$methodname' failed: $methodname doesn't exist in " . blessed($_[0]) . "'s inheritance hierarchy";
         }
 
-        Carp::croak "Modifier of '$methodname' failed: $methodname doesn't exist in " . blessed($_[0]) . "'s inheritance hierarchy";
+        $method_cache{"X$qualified"} = $dispatch;
     }
-
-    my $qualified = $package . '::' . $methodname;
 
     my $before = $method_cache{"B$qualified"} || [];
     my $after  = $method_cache{"A$qualified"} || [];
@@ -85,7 +89,7 @@ sub _install
     my $mod_type   = shift;
     my $methodname = shift;
     my $modifier   = shift;
-    my $package    = caller(1);
+    my $package    = @_ ? shift : caller(1);
     my $qualified  = $package . '::' . $methodname;
     my $already_installed = 0;
 
@@ -129,13 +133,13 @@ sub _install
 # @AROUNDS_LEFT, which is set for us by _resolve
 sub _orig
 {
-    if (my $next = shift @AROUNDS_LEFT)
-    {
-        # need to set up the next $orig
-        unshift @_, \&_orig if @AROUNDS_LEFT;
+    my $next = shift @AROUNDS_LEFT
+        or die "It looks like you're calling \$orig more than once in around. Don't!!";
 
-        goto &$next;
-    }
+    # need to set up the next $orig
+    unshift @_, \&_orig if @AROUNDS_LEFT;
+
+    goto &$next;
 }
 
 sub before
@@ -171,7 +175,7 @@ Class::Method::Modifiers - provides Moose-like method modifiers
 
 =head1 VERSION
 
-Version 0.03 released 06 Aug 07
+Version 0.04 released 17 Aug 07
 
 =head1 SYNOPSIS
 
@@ -280,6 +284,9 @@ L<Moose>, L<Class::MOP::Method::Wrapped>, L<MRO::Compat>, CLOS
 Shawn M Moore, C<< <sartak at gmail.com> >>
 
 =head1 BUGS
+
+Calling C<$orig> twice in an C<around> modifier is prone to breakage. Moose
+supports this, I currently don't.
 
 Please report any bugs through RT: email
 C<bug-class-method-modifiers at rt.cpan.org>, or browse to

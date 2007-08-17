@@ -1,10 +1,9 @@
-Class-Method-Modifiers 0.03
+Class-Method-Modifiers 0.04
 
 Class::Method::Modifiers is a lightweight module that lets you easily "just"
 modify methods. The ideas are stolen directly from Stevan Little's Moose (which
 borrows heavily from the universally-acclaimed CLOS and Perl 6). The
-implementation is straight out of my head, though (with an unknowing assist by
-Simon Cozens).
+implementation is straight out of my noggin, though.
 
 MAJOR CHANGES
     0.03: C3 should work now

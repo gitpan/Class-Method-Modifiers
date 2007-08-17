@@ -28,6 +28,7 @@ t/031-multiple-after.t
 t/032-multiple-around.t
 t/033-multiple-everything.t
 t/034-multiple-everything-twice.t
+t/040-twice-orig.t
 t/050-error.t
 t/051-undef-list-ctxt.t
 t/052-modify-and-sub.t
