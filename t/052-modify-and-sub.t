@@ -31,7 +31,7 @@ eval
     }
 };
 
-like($@, qr{\AYou have seem to have both 'sub orig' and "after 'orig'" in Child at \S+ line \d+\n\z}, "after then sub");
+like($@, qr{\AYou seem to have both 'sub orig' and "after 'orig'" in Child at \S+ line \d+\n\z}, "after then sub");
 
 eval
 {
@@ -49,5 +49,5 @@ eval
 
 };
 
-like($@, qr{\AYou have seem to have both 'sub orig' and "after 'orig'" in Child2 at \S+ line \d+\n\z}, "after then sub");
+like($@, qr{\AYou seem to have both 'sub orig' and "after 'orig'" in Child2 at \S+ line \d+\n\z}, "after then sub");
 

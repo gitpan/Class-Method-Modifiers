@@ -7,7 +7,7 @@ use Carp;
 use Scalar::Util 'blessed';
 use MRO::Compat;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 our @EXPORT = qw(before around after);
 
@@ -41,8 +41,7 @@ sub _resolve
             shift @mro; # get_linear_isa annoyingly returns self as well
             for (@mro)
             {
-                next unless exists *{$_.'::'}->{$methodname};
-                $dispatch = \&{$_.'::'.$methodname};
+                next unless $dispatch = *{$_.'::'.$methodname}{CODE};
                 last SEARCH;
             }
 
@@ -94,7 +93,7 @@ sub _install
     my $already_installed = 0;
 
     no strict 'refs';
-    if (exists *{$package.'::'}->{$methodname})
+    if (*{$qualified}{CODE})
     {
         $already_installed = 1;
 
@@ -105,7 +104,7 @@ sub _install
          && !exists($method_cache{"C$qualified"}))
         {
             # it's not ok to say 'sub foo' 'around foo =>'
-            Carp::croak "You have seem to have both 'sub $methodname' and \"$type_expand{$mod_type} '$methodname'\" in $package";
+            Carp::croak "You seem to have both 'sub $methodname' and \"$type_expand{$mod_type} '$methodname'\" in $package";
         }
     }
 
@@ -175,7 +174,7 @@ Class::Method::Modifiers - provides Moose-like method modifiers
 
 =head1 VERSION
 
-Version 0.04 released 17 Aug 07
+Version 0.05 released 17 Aug 07
 
 =head1 SYNOPSIS
 
