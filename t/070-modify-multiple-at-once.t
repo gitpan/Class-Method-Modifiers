@@ -10,7 +10,7 @@ sub left { push @seen, "orig-left" }
 sub right { push @seen, "orig-right" }
 
 package Child;
-use base 'Parent';
+our @ISA = 'Parent';
 use Class::Method::Modifiers;
 before 'left', 'right' => sub { push @seen, 'before' };
 

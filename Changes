@@ -1,5 +1,8 @@
 Revision history for Class-Method-Modifiers
 
+0.06    Sun Sep  9 23:27:50 2007
+        You may now modify a method in the same class as it is defined
+
 0.05    Fri Aug 17 23:26:53 2007
         More internals fixes (I'm abusing this module a bit, you see)
         Grammar fixes

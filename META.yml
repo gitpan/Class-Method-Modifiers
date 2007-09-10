@@ -3,7 +3,6 @@ abstract: provides Moose-like method modifiers
 author: Shawn M Moore, C<< <sartak at gmail.com> >>
 build_requires: 
   Test::More: 0
-  base: 0
 distribution_type: module
 generated_by: Module::Install version 0.67
 license: perl
@@ -21,4 +20,4 @@ requires:
   MRO::Compat: 0
   Scalar::Util: 0
   parent: 0
-version: 0.05
+version: 0.06

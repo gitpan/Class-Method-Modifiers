@@ -66,7 +66,7 @@ sub dies_ok (&$)
 
 	use strict;
 	use warnings;
-	use base 'BankAccount';
+	our @ISA = 'BankAccount';
     use Class::Method::Modifiers;
 	
     sub BUILD {

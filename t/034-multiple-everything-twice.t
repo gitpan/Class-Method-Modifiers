@@ -38,7 +38,7 @@ BEGIN {
 
 BEGIN {
     package Child;
-    use base 'Parent';
+    our @ISA = 'Parent';
     use Class::Method::Modifiers;
 
     before orig => sub
@@ -80,7 +80,7 @@ BEGIN {
 
 BEGIN {
     package Grandchild;
-    use base 'Child';
+    our @ISA = 'Child';
     use Class::Method::Modifiers;
 
     before orig => sub

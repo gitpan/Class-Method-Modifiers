@@ -42,7 +42,7 @@ BEGIN
 BEGIN
 {
     package Child;
-    use base 'Parent';
+    our @ISA = 'Parent';
     use Class::Method::Modifiers;
 
     around 'orig' => sub

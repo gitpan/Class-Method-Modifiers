@@ -73,14 +73,14 @@ BEGIN
 
     {
         package MiddleL;
-        use base 'SuperL';
+        our @ISA = 'SuperL';
 
         sub middlel { "<MiddleL:middlel>" }
     }
 
     {
         package MiddleR;
-        use base 'SuperR';
+        our @ISA = 'SuperR';
         use Class::Method::Modifiers;
 
         sub middler { "<MiddleR:middler>" }
@@ -94,7 +94,7 @@ BEGIN
 
     {
         package Child;
-        use base 'MiddleL', 'MiddleR';
+        our @ISA = ('MiddleL', 'MiddleR');
         use Class::Method::Modifiers;
 
         sub child { "<Child:child>" }

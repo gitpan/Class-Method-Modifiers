@@ -16,22 +16,22 @@ sub wrapped { push @tracelog => 'primary' }
 
 package GrandParent;
 use Class::Method::Modifiers;
-use base 'GreatGrandParent';
+our @ISA = 'GreatGrandParent';
 around method => sub { (3, $_[0]->()) };
 
 package Parent;
 use Class::Method::Modifiers;
-use base 'GrandParent';
+our @ISA = 'GrandParent';
 around method => sub { (2, $_[0]->()) };
 
 package Child;
 use Class::Method::Modifiers;
-use base 'Parent';
+our @ISA = 'Parent';
 around method => sub { (1, $_[0]->()) };
 
 package GrandChild;
 use Class::Method::Modifiers;
-use base 'Child';
+our @ISA = 'Child';
 around method => sub { (0, $_[0]->()) };
 
 before wrapped => sub { push @tracelog => 'before 1' };
