@@ -1,5 +1,8 @@
 Revision history for Class-Method-Modifiers
 
+0.07    Wed Sep 12 21:55:16 2007
+        Add 'guard' modifier to facilitate bailing out in some conditions
+
 0.06    Sun Sep  9 23:27:50 2007
         You may now modify a method in the same class as it is defined
 

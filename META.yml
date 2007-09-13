@@ -20,4 +20,4 @@ requires:
   MRO::Compat: 0
   Scalar::Util: 0
   parent: 0
-version: 0.06
+version: 0.07

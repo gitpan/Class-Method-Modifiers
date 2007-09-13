@@ -6,11 +6,13 @@ use Test::More tests => 1;
 my @seen;
 my @expected = ("before 2",
                   "before 1",
-                    "around 2 before",
-                      "around 1 before",
-                        "orig",
-                      "around 1 after",
-                    "around 2 after",
+                    "guard 2",
+                      "guard 1",
+                        "around 2 before",
+                          "around 1 before",
+                            "orig",
+                          "around 1 after",
+                        "around 2 after",
                   "after 1",
                 "after 2",
                );
@@ -31,7 +33,7 @@ BEGIN {
 BEGIN {
     package Child;
     our @ISA = 'Parent';
-    use Class::Method::Modifiers;
+    use Class::Method::Modifiers ':guard';
 
     before orig => sub
     {
@@ -41,6 +43,16 @@ BEGIN {
     before orig => sub
     {
         push @seen, "before 2";
+    };
+
+    guard orig => sub
+    {
+        push @seen, "guard 1";
+    };
+
+    guard orig => sub
+    {
+        push @seen, "guard 2";
     };
 
     around orig => sub
