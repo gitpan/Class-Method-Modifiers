@@ -1,0 +1,61 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.55.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It will check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+SHA1 918c1730d149b2fda04e44d31873d4993998cc2e Changes
+SHA1 597395a28c2d78f19d05a5e660c5ba00107f1a59 MANIFEST
+SHA1 815cba9c26cc936f82b64922858ae315a55d6206 META.yml
+SHA1 a46e353e45e6d0029a354c2a289c58df0e43a711 Makefile.PL
+SHA1 f0577f8f88a6703e9bca2d10196cfd293f3d6f2f inc/Module/Install.pm
+SHA1 5d574849849860b8cf06035cc6f1a306c66cb326 inc/Module/Install/Base.pm
+SHA1 c30f50bc2a1542dff17f84a54d9316f3c3c6299e inc/Module/Install/Can.pm
+SHA1 9b618efcd783f6ed4bab84fa22b31886fcc38d57 inc/Module/Install/Fetch.pm
+SHA1 cd14c8de2a67b0f14df9bc20c27f3edabd359d1b inc/Module/Install/Makefile.pm
+SHA1 a2162aec678d21988fce47ab805cf01773196292 inc/Module/Install/Metadata.pm
+SHA1 4ae5d56e11e640bd9520634dde6d563926f6d98a inc/Module/Install/Win32.pm
+SHA1 587cc94b52b640fe2d4972253b6369aa951e2210 inc/Module/Install/WriteAll.pm
+SHA1 aeb1704b3b8558d81700b3bb10ced2a917b3b2af lib/Class/Method/Modifiers.pm
+SHA1 6f3b8a6e575cc8d0eece43f6aaedbcbbc7668eeb t/000-load.t
+SHA1 9b5d423597da7171382ebb40c444b6e78a9a746a t/001-error.t
+SHA1 0d6df65326f1c1c5aed1327b56dd0395758dab44 t/002-cache.t
+SHA1 abb21c93d659e8a2e4d1a648fe91bd8d54e582de t/003-basic.t
+SHA1 d25f23b3fb8f34517bddc701c928366dd82f423b t/004-around.t
+SHA1 81909cd8170fdb2054ccd2479a9aa336bba35366 t/005-return.t
+SHA1 80190fb944e98ca202f9a174a28ef9421dcc3edb t/010-before-args.t
+SHA1 b2b64a6972bf4453c5e90e1effa6f76017383416 t/011-after-args.t
+SHA1 17132ce8c3d9e89ce0e74373ad742a6cac7ca556 t/012-around-args.t
+SHA1 688cc759c01d0bf68a4bbad3ab64bc9869f44301 t/020-multiple-inheritance.t
+SHA1 86c912cb7907c22dcf24f7ce7bbd71898ddf91ac t/030-multiple-before.t
+SHA1 661bc7e948539209e7acbfc8e9a33b97336fac7b t/031-multiple-after.t
+SHA1 08b756dc5c0dde9b71608f2b4a9c03086d5ab7aa t/032-multiple-around.t
+SHA1 e827b395da0006154f7800e6c68d1920bde8c9ee t/034-multiple-everything.t
+SHA1 c78f5e818b050a06ad7da5eacd4f04f23a206816 t/035-multiple-everything-twice.t
+SHA1 46fea139081e048a11302c60f45becbcf67ca521 t/040-twice-orig.t
+SHA1 b354a5f21824cac6fbb59a9903ee95ecdb43ad33 t/041-modify-parent.t
+SHA1 bb725402d5a5c9788eee9a124689d263ea7342e9 t/051-undef-list-ctxt.t
+SHA1 be995db6c6a83dec38761083dd13fa7e504cb1ab t/060-caller.t
+SHA1 dc7ddf1bf9433d5767b64fd30671921b0e663163 t/070-modify-multiple-at-once.t
+SHA1 6756cebd6c65886f1c9c87c4da5d8698281bf6bb t/080-multiple-modifiers.t
+SHA1 04333c7295e8545e6fff378d5fcac0f620c47859 t/081-sub-and-modifier.t
+SHA1 3ec1c999d3cbea4d3cd46fe697d1650caa4bca05 t/090-diamond.t
+SHA1 81f626d158ee3bdc6114611beb5749faa65857aa t/100-class-mop-method-modifiers.t
+SHA1 84fcad7704b445101e2008e5a9df303d0d06627f t/101-bank-account.t
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (Darwin)
+
+iD8DBQFIT6U5sxfQtHhyRPoRAm2KAJ9kbdRjMr0nbdlbDS0lnPG3vpH16wCfUiCc
+TpvdP9leNiVj+n15mTqK2Us=
+=cO8F
+-----END PGP SIGNATURE-----

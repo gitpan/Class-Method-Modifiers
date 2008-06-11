@@ -8,7 +8,7 @@ my @expected = ("around 2 before", "around 1 before", "orig", "around 1 after", 
 
 my $child = Child->new; $child->orig;
 
-is_deeply(\@seen, \@expected, "multiple afters called in the right order");
+is_deeply(\@seen, \@expected, "multiple arounds called in the right order");
 
 BEGIN {
     package Parent;

@@ -1,262 +1,138 @@
-#!perl
+#!/usr/bin/env perl
 package Class::Method::Modifiers;
 use strict;
 use warnings;
-use parent 'Exporter';
-use Carp;
-use Scalar::Util 'blessed';
+
 use MRO::Compat;
 
-our $VERSION = '0.07';
+our $VERSION = '1.00';
 
-our @EXPORT = qw(before around after);
-our @EXPORT_OK = qw(guard);
-our %EXPORT_TAGS = (all => [@EXPORT, @EXPORT_OK], guard => [@EXPORT, 'guard']);
+use base 'Exporter';
+our @EXPORT = qw(before after around);
+our @EXPORT_OK = @EXPORT;
+our %EXPORT_TAGS = (
+    moose => [qw(before after around)],
+    all   => \@EXPORT_OK,
+);
 
-################################################################################
+use Carp 'confess';
 
-# if you're interested in doing very dynamic things with this module (I
-# certainly am) then there are some undocumented tricks. most of these
-# should become public interface.
+our %MODIFIER_CACHE;
 
-# Class::Method::Modifiers::_wipeout
-# will clear the modifier stash of:
-#     (no argument):   everything
-#     package name:    all methods in that package
-#     package::method: this one method in package
-# this is particularly useful in conjunction with Module::Refresh. without
-# _wipeout, refreshing a module with modifiers will cause the method to be
-# wrapped by each modifier twice
+sub _install_modifier {
+    my $into  = shift;
+    my $type  = shift;
+    my $code  = pop;
+    my @names = @_;
 
-# null modifier
-# passing "-" to the _install method (which is what the before/after/around
-# functions thinly wrap) will let you install a null modifier. this is most
-# useful if you want to change the original method that is being wrapped
-# without affecting the wrappers at all
+    for my $name (@names) {
+        $into->can($name)
+            or confess "The method '$name' is not found in the inheritance hierarchy for class $into";
 
-# see also Calf, which is a basic Moose clone optimized for highly pluggable,
-# dynamic apps
+        my $qualified = $into.'::'.$name;
+        my $cache = $MODIFIER_CACHE{$into}{$name} ||= {
+            before => [],
+            after  => [],
+            around => [],
+        };
 
-################################################################################
-
-# this is a dynamically scoped variable that has, during an around, the arounds
-# that must be called "inside" that around. this includes the original method.
-# implemented so multiple arounds by the same class does the right thing
-our @AROUNDS_LEFT;
-
-# method modifier symbol table. keys are of the form Npackage::method where N
-# is BAC for the three modifiers, O for the original sub we needed to
-# overwrite, X for dispatch cache, and - for null modifiers
-# I've considered making this public, but keeping all the magic in one place
-# is the best way to go
-my %method_cache;
-
-my %type_expand = (A => "after", B => "before", C => "around", G => "guard");
-
-# this is the method that gets injected into each method slot, used to handle
-# the calling of modifiers and eventually up to a parent class, or the original
-# sub that was there before we overwrote it
-sub _resolve
-{
-    my $methodname = shift;
-    my $package    = shift;
-    my $qualified  = $package . '::' . $methodname;
-    my $dispatch   = ($method_cache{"X$qualified"} ||= $method_cache{"O$qualified"});
-
-    if (!$dispatch)
-    {
-        # see where we'd dispatch to next. mro's next::method doesn't let us do
-        # next-method resolution as a third party :(
-        SEARCH:
-        {
+        # this must be the first modifier we're installing
+        if (!exists($MODIFIER_CACHE{$into}{$name}{"orig"})) {
             no strict 'refs';
 
-            my @mro = @{ mro::get_linear_isa($package) };
-            shift @mro; # get_linear_isa annoyingly returns self as well
-            for (@mro)
-            {
-                next unless $dispatch = *{$_.'::'.$methodname}{CODE};
-                last SEARCH;
+            # grab the original method (or undef if the method is inherited)
+            $cache->{"orig"} = *{$qualified}{CODE};
+
+            # the "innermost" method, the one that "around" will ultimately wrap
+            $cache->{"wrapped"} = $cache->{"orig"} || sub {
+                # we can't cache this, because new methods or modifiers may be
+                # added between now and when this method is called
+                for my $package (@{ mro::get_linear_isa($into) }) {
+                    next if $package eq $into;
+                    my $code = *{$package.'::'.$name}{CODE};
+                    goto $code if $code;
+                }
+                confess "$qualified\::$name disappeared?";
+            };
+        }
+
+        # keep these lists in the order the modifiers are called
+        if ($type eq 'after') {
+            push @{ $cache->{$type} }, $code;
+        }
+        else {
+            unshift @{ $cache->{$type} }, $code;
+        }
+
+        # wrap the method with another layer of around. much simpler than
+        # the Moose equivalent. :)
+        if ($type eq 'around') {
+            my $method = $cache->{wrapped};
+            $cache->{wrapped} = sub {
+                $code->($method, @_);
+            };
+        }
+
+        # install our new method which dispatches the modifiers, but only
+        # if a new type was added
+        if (@{ $cache->{$type} } == 1) {
+
+            # avoid these hash lookups every method invocation
+            my $before  = $cache->{"before"};
+            my $after   = $cache->{"after"};
+
+            # this is a coderef that changes every new "around". so we need
+            # to take a reference to it. better a deref than a hash lookup
+            my $wrapped = \$cache->{"wrapped"};
+
+            my $generated = 'sub {';
+
+            # before is easy, it doesn't affect the return value(s)
+            $generated .= '$_->(@_) for @$before;' if @$before;
+
+            if (@$after) {
+                $generated .= '
+                    my @ret;
+                    if (wantarray) {
+                        @ret = $$wrapped->(@_);
+                    }
+                    else {
+                        $ret[0] = $$wrapped->(@_);
+                    }
+
+                    $_->(@_) for @$after;
+
+                    return wantarray ? @ret : $ret[0];
+                ';
+            }
+            else {
+                $generated .= '$$wrapped->(@_);';
             }
 
-            Carp::croak "Modifier of '$methodname' failed: $methodname doesn't exist in " . blessed($_[0]) . "'s inheritance hierarchy";
-        }
+            $generated .= '}';
 
-        $method_cache{"X$qualified"} = $dispatch;
-    }
-
-    my $before  = $method_cache{"B$qualified"} || [];
-    my $after   = $method_cache{"A$qualified"} || [];
-    my $around  = $method_cache{"C$qualified"} || [];
-    my $guard   = $method_cache{"G$qualified"} || [];
-
-    for (@$before)
-    {
-        $_->(@_);
-    }
-
-    for (@$guard)
-    {
-        $_->(@_) or return;
-    }
-
-    my @ret;
-
-    {
-        local @AROUNDS_LEFT = (@$around, $dispatch);
-        if (wantarray)
-        {
-            @ret = _orig(@_);
-        }
-        else
-        {
-            $ret[0] = _orig(@_);
-        }
-    }
-
-    for (@$after)
-    {
-        $_->(@_);
-    }
-
-    return wantarray ? @ret : $ret[0];
-}
-
-# this handles the injection. thinly wrapped by before/after/around
-sub _install
-{
-    my $mod_type   = shift;
-    my $methodname = shift;
-    my $modifier   = shift;
-    my $package    = @_ ? shift : caller(1);
-    my $qualified  = $package . '::' . $methodname;
-    my $already_installed = 0;
-
-    no strict 'refs';
-    no warnings 'redefine';
-
-    if (*{$qualified}{CODE})
-    {
-        $already_installed = 1;
-
-        # if we have an existing method, and we don't know about it, that is
-        # a "sub foo" that we must cache and overwrite. the special modifier
-        # "-" (which is the null modifier) may be used to bypass the check
-        # for existing modifiers
-        if ($mod_type eq '-' ||
-           (!exists($method_cache{"A$qualified"})
-         && !exists($method_cache{"B$qualified"})
-         && !exists($method_cache{"C$qualified"})
-         && !exists($method_cache{"G$qualified"})
-         && !exists($method_cache{"-$qualified"})))
-        {
-            $method_cache{"O$qualified"} = *{$qualified}{CODE};
-            $already_installed = 0;
-            delete $method_cache{"X$qualified"}; # clear dispatch cache
-        }
-    }
-
-    if ($mod_type eq 'A')
-    {
-        # after methods work in the order they were defined
-        push @{$method_cache{"A$qualified"}}, $modifier;
-    }
-    else
-    {
-        # before and around are the opposite
-        unshift @{$method_cache{"$mod_type$qualified"}}, $modifier;
-    }
-
-    *{$qualified} = sub
-    {
-        # this helps _resolve figure out what's going on without relying on
-        # caller
-        unshift @_, $methodname, $package;
-
-        goto &_resolve;
-    } unless $already_installed;
-}
-
-# this is used to clear any method modifiers in the internal cache
-sub _wipeout
-{
-    if (!@_)
-    {
-        for (values %method_cache) { undef $_ }
-        return;
-    }
-
-    my $package = shift(@_);
-    $package = (blessed $package || $package) . '::';
-    my $method = $package . shift(@_) if @_;
-
-    for my $key (keys %method_cache)
-    {
-        my $k = substr($key, 1); # get rid of the modifier type
-        if ($method)
-        {
-            do { warn $key; undef $method_cache{$key} }
-                if $k eq $method;
-        }
-        else
-        {
-            do { warn $key; undef $method_cache{$key} }
-                if substr($k, 0, length($package)) eq $package;
-        }
+            no strict 'refs';
+            no warnings 'redefine';
+            *$qualified = eval $generated;
+        };
     }
 }
 
-# this implements the magic needed for multiple "around"s in one class
-# this is the function that is actually called when you invoke $orig, it
-# figures out what to dispatch to next. it does so using the dynamically scoped
-# @AROUNDS_LEFT, which is set for us by _resolve
-sub _orig
-{
-    my $next = shift @AROUNDS_LEFT
-        or die "It looks like you're calling \$orig more than once in around. Don't!!";
-
-    # need to set up the next $orig, except when we're dispatching next to
-    # the parent class or the original method in the class
-    unshift @_, \&_orig if @AROUNDS_LEFT;
-
-    goto &$next;
+sub before(@&) {
+    _install_modifier(scalar(caller), 'before', @_);
 }
 
-sub before
-{
-    my $modifier = pop;
-    for (@_)
-    {
-        _install('B', $_, $modifier);
-    }
+sub after(@&) {
+    _install_modifier(scalar(caller), 'after', @_);
 }
 
-sub after
-{
-    my $modifier = pop;
-    for (@_)
-    {
-        _install('A', $_, $modifier);
-    }
+sub around(@&) {
+    _install_modifier(scalar(caller), 'around', @_);
 }
 
-sub around
-{
-    my $modifier = pop;
-    for (@_)
-    {
-        _install('C', $_, $modifier);
-    }
-}
+1;
 
-sub guard
-{
-    my $modifier = pop;
-    for (@_)
-    {
-        _install('G', $_, $modifier);
-    }
-}
+__END__
 
 =head1 NAME
 
@@ -264,23 +140,21 @@ Class::Method::Modifiers - provides Moose-like method modifiers
 
 =head1 VERSION
 
-Version 0.07 released 12 Sep 07
+Version 1.00 released 11 Jun 08
 
 =head1 SYNOPSIS
 
-    package Class::Child;
-    use parent 'Class::Parent';
+    package Child;
+    use parent 'Parent';
     use Class::Method::Modifiers;
 
     sub new_method { }
 
-    before 'old_method' => sub
-    {
+    before 'old_method' => sub {
         carp "old_method is deprecated, use new_method";
     };
 
-    around 'other_method' => sub
-    {
+    around 'other_method' => sub {
         my $orig = shift;
         my $ret = $orig->(@_);
         return $ret =~ /\d/ ? $ret : lc $ret;
@@ -295,13 +169,12 @@ In its most basic form, a method modifier is just a method that calls
 C<< $self->SUPER::foo(@_) >>. I for one have trouble remembering that exact
 invocation, so my classes seldom re-dispatch to their base classes. Very bad!
 
-C<Class::Method::Modifiers> provides four modifiers: C<before>, C<around>,
-C<after>, and C<guard>. C<before> and C<after> are run just before and after
-the method they modify, but can not really affect that original method.
-C<guard> is much like C<before>, except that it can prevent the execution of
-the original method. C<around> is run in place of the original method, with a
-hook to easily call that original method. See the C<MODIFIERS> section for more
-details on how the particular modifiers work.
+C<Class::Method::Modifiers> provides three modifiers: C<before>, C<around>, and
+C<after>. C<before> and C<after> are run just before and after the method they
+modify, but can not really affect that original method. C<around> is run in
+place of the original method, with a hook to easily call that original method.
+See the C<MODIFIERS> section for more details on how the particular modifiers
+work.
 
 One clear benefit of using C<Class::Method::Modifiers> is that you can define
 multiple modifiers in a single namespace. These separate modifiers don't need
@@ -316,6 +189,9 @@ L<Term::VT102::ZeroBased> for an example of subclassing with CMM.
 In short, C<Class::Method::Modifiers> solves the problem of making sure you
 call C<< $self->SUPER::foo(@_) >>, and provides a cleaner interface for it.
 
+As of version 1.00, C<Class::Method::Modifiers> is faster than L<Moose>. See
+C<benchmark/method_modifiers.pl> in the L<Moose> distribution.
+
 =head1 MODIFIERS
 
 =head2 before method(s) => sub { ... }
@@ -325,23 +201,6 @@ totally ignored. It receives the same C<@_> as the the method it is modifying
 would have received. You can modify the C<@_> the original method will receive
 by changing C<$_[0]> and friends (or by changing anything inside a reference).
 This is a feature!
-
-=head2 guard method(s) => sub { ... }
-
-C<guard> is called before the method it is modifying, between any C<before>s
-and any C<around>s. If the guard returns a true value, then execution will
-proceed as normal. If the guard returns a false value, then any further
-C<guard>s, C<around>s, C<after>s are not run. The method will appear to have
-returned the canonical false value (C<undef> in scalar context, the empty list
-in list context). It receives the same C<@_> as the the method it is modifying
-would have received. You can modify the C<@_> the original method will receive
-by changing C<$_[0]> and friends (or by changing anything inside a reference).
-This is a feature!
-
-Since C<guard> is not exported by default, you must import either 'guard',
-':guard', or ':all' when C<use>-ing CMM. 'guard' will import only this one
-modifier, ':guard' will import guard and before/after/around, and ':all' will
-import guard, before, after, around, and anything else added in the future.
 
 =head2 after method(s) => sub { ... }
 
@@ -364,24 +223,22 @@ You can use C<around> to:
 
 =item Pass C<$orig> a different C<@_>
 
-    around 'method' => sub
-    {
-        my $orig = shift; my $self = shift;
+    around 'method' => sub {
+        my $orig = shift;
+        my $self = shift;
         $orig->($self, reverse @_);
     };
 
 =item Munge the return value of C<$orig>
 
-    around 'method' => sub
-    {
+    around 'method' => sub {
         my $orig = shift;
         ucfirst $orig->(@_);
     };
 
 =item Avoid calling C<$orig> -- conditionally
 
-    around 'method' => sub
-    {
+    around 'method' => sub {
         my $orig = shift;
         return $orig->(@_) if time() % 2;
         return "no dice, captain";
@@ -392,11 +249,10 @@ You can use C<around> to:
 =head1 NOTES
 
 All three normal modifiers; C<before>, C<after>, and C<around>; are exported
-into your namespace by default. C<guard> is imported only if you ask for it
-(such as by C<use Class::Method::Modifiers ':guard'> or C<':all'>. You may
-C<use Class::Method::Modifiers ()> to avoid thrashing your namespace. I may
-steal more features from L<Moose>, namely C<super>, C<override>, C<inner>,
-C<augment>, and whatever the L<Moose> folks come up with next.
+into your namespace by default. You may C<use Class::Method::Modifiers ()> to
+avoid thrashing your namespace. I may steal more features from L<Moose>, namely
+C<super>, C<override>, C<inner>, C<augment>, and whatever the L<Moose> folks
+come up with next.
 
 Note that the syntax and semantics for these modifiers is directly borrowed
 from L<Moose> (the implementations, however, are not).
@@ -413,10 +269,22 @@ it.
 
 It is erroneous to modify a method that doesn't exist in your class's
 inheritance hierarchy. If this occurs, an exception will be thrown when
-the method is invoked.
+the modifier is defined.
 
 It doesn't yet play well with C<caller>. There are some todo tests for this.
 Don't get your hopes up though!
+
+=head1 VERSION
+
+This module was bumped to 1.00 following a complete reimplementation, to
+indicate breaking backwards compatibility. The "guard" modifier was removed,
+and the internals are completely different.
+
+The new version is a few times faster with half the code. It's now even faster
+than Moose.
+
+Any code that just used modifiers should not change in behavior, except to
+become more correct. And, of course, faster. :)
 
 =head1 SEE ALSO
 
@@ -429,40 +297,9 @@ Shawn M Moore, C<< <sartak at gmail.com> >>
 
 =head1 BUGS
 
-Calling C<$orig> twice in an C<around> modifier is prone to breakage. Moose
-supports this, I currently don't.
-
 Please report any bugs through RT: email
 C<bug-class-method-modifiers at rt.cpan.org>, or browse to
 L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Class-Method-Modifiers>.
-
-=head1 SUPPORT
-
-You can find this documentation for this module with the perldoc command.
-
-    perldoc Class::Method::Modifiers
-
-You can also look for information at:
-
-=over 4
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Class-Method-Modifiers>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Class-Method-Modifiers>
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Class-Method-Modifiers>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Class-Method-Modifiers>
-
-=back
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -473,12 +310,10 @@ Thanks to Matt Trout and Stevan Little for their advice.
 
 =head1 COPYRIGHT & LICENSE
 
-Copyright 2007 Shawn M Moore.
+Copyright 2007-2008 Shawn M Moore.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
-
-1;
 

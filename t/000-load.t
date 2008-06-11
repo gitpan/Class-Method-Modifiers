@@ -1,7 +1,23 @@
-#!perl -T
+#!/usr/bin/env perl
 use strict;
 use warnings;
 use Test::More tests => 1;
 
-use_ok 'Class::Method::Modifiers';
+do {
+    package Class;
+    use Class::Method::Modifiers;
+
+    sub foo { }
+
+    before foo => sub {
+    };
+
+    after foo => sub {
+    };
+
+    around foo => sub {
+    };
+};
+
+pass("loaded correctly");
 

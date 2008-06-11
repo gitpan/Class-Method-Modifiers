@@ -1,5 +1,10 @@
 Revision history for Class-Method-Modifiers
 
+1.00    Wed Jun 11 06:10:51 2008
+        Complete reimplementation. Half the code. Faster than Moose.
+        Remove 'guard' for now.
+        *All* internals are changed.
+
 0.07    Wed Sep 12 21:55:16 2007
         Add 'guard' modifier to facilitate bailing out in some conditions
 
@@ -26,4 +31,5 @@ Revision history for Class-Method-Modifiers
 
 0.01    Sun Aug  5 06:10:30 2007
         First version, released on an unsuspecting world.
+
 

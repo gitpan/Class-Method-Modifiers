@@ -4,13 +4,8 @@ use warnings;
 use Test::More tests => 1;
 my @seen;
 
-TODO:
-{
-    local $TODO = "calling orig twice screws up the dynamically scoped method list";
-
-    eval { ChildCMM->new->orig() };
-    is_deeply(\@seen, ["orig", "orig"], "CMM: calling orig twice in one around works");
-}
+eval { ChildCMM->new->orig() };
+is_deeply(\@seen, ["orig", "orig"], "CMM: calling orig twice in one around works");
 
 BEGIN
 {
