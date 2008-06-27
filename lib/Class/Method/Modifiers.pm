@@ -5,7 +5,7 @@ use warnings;
 
 use MRO::Compat;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 use base 'Exporter';
 our @EXPORT = qw(before after around);
@@ -26,7 +26,7 @@ sub _install_modifier {
     my @names = @_;
 
     for my $name (@names) {
-        $into->can($name)
+        my $hit = $into->can($name)
             or confess "The method '$name' is not found in the inheritance hierarchy for class $into";
 
         my $qualified = $into.'::'.$name;
@@ -44,16 +44,16 @@ sub _install_modifier {
             $cache->{"orig"} = *{$qualified}{CODE};
 
             # the "innermost" method, the one that "around" will ultimately wrap
-            $cache->{"wrapped"} = $cache->{"orig"} || sub {
-                # we can't cache this, because new methods or modifiers may be
-                # added between now and when this method is called
-                for my $package (@{ mro::get_linear_isa($into) }) {
-                    next if $package eq $into;
-                    my $code = *{$package.'::'.$name}{CODE};
-                    goto $code if $code;
-                }
-                confess "$qualified\::$name disappeared?";
-            };
+            $cache->{"wrapped"} = $cache->{"orig"} || $hit; #sub {
+            #    # we can't cache this, because new methods or modifiers may be
+            #    # added between now and when this method is called
+            #    for my $package (@{ mro::get_linear_isa($into) }) {
+            #        next if $package eq $into;
+            #        my $code = *{$package.'::'.$name}{CODE};
+            #        goto $code if $code;
+            #    }
+            #    confess "$qualified\::$name disappeared?";
+            #};
         }
 
         # keep these lists in the order the modifiers are called
@@ -118,15 +118,15 @@ sub _install_modifier {
     }
 }
 
-sub before(@&) {
+sub before {
     _install_modifier(scalar(caller), 'before', @_);
 }
 
-sub after(@&) {
+sub after {
     _install_modifier(scalar(caller), 'after', @_);
 }
 
-sub around(@&) {
+sub around {
     _install_modifier(scalar(caller), 'around', @_);
 }
 
@@ -137,10 +137,6 @@ __END__
 =head1 NAME
 
 Class::Method::Modifiers - provides Moose-like method modifiers
-
-=head1 VERSION
-
-Version 1.00 released 11 Jun 08
 
 =head1 SYNOPSIS
 
