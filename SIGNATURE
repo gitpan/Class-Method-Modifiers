@@ -14,21 +14,21 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 0970f3fe5ae1a07ee512b2ff4412cf304bdc5d6d Changes
+SHA1 f0ac4e80ebecdac510c0c6d779195eed8d0d7430 Changes
 SHA1 597395a28c2d78f19d05a5e660c5ba00107f1a59 MANIFEST
-SHA1 26a45935489799edef81b0e9b3c4efd361fa9848 META.yml
-SHA1 a46e353e45e6d0029a354c2a289c58df0e43a711 Makefile.PL
-SHA1 f0577f8f88a6703e9bca2d10196cfd293f3d6f2f inc/Module/Install.pm
-SHA1 5d574849849860b8cf06035cc6f1a306c66cb326 inc/Module/Install/Base.pm
-SHA1 c30f50bc2a1542dff17f84a54d9316f3c3c6299e inc/Module/Install/Can.pm
-SHA1 9b618efcd783f6ed4bab84fa22b31886fcc38d57 inc/Module/Install/Fetch.pm
-SHA1 cd14c8de2a67b0f14df9bc20c27f3edabd359d1b inc/Module/Install/Makefile.pm
-SHA1 a2162aec678d21988fce47ab805cf01773196292 inc/Module/Install/Metadata.pm
-SHA1 4ae5d56e11e640bd9520634dde6d563926f6d98a inc/Module/Install/Win32.pm
-SHA1 587cc94b52b640fe2d4972253b6369aa951e2210 inc/Module/Install/WriteAll.pm
-SHA1 e65113e430c0c035ef6bc52eebe45e021ecf022b lib/Class/Method/Modifiers.pm
+SHA1 7f347f39089fa7ab03ee527104b35a07bcee5842 META.yml
+SHA1 8440d76d810ed9cde9f76da66cd586eebe777cb9 Makefile.PL
+SHA1 332e57606ea9888dfb12e4a2a418baa5f7c819e4 inc/Module/Install.pm
+SHA1 2c8c24cb50d28a02a6a92401c927e47fb34184b5 inc/Module/Install/Base.pm
+SHA1 d24b41ae965b81a9432f407d5f9b5b749465d48e inc/Module/Install/Can.pm
+SHA1 9f07638e894574787c6c235e9525ad07a3f567cc inc/Module/Install/Fetch.pm
+SHA1 60333c5d89a3dd6403c67ec3c5da7791ca7d5396 inc/Module/Install/Makefile.pm
+SHA1 84ce3da42970e13af7ecbe9f88900f4272eecc71 inc/Module/Install/Metadata.pm
+SHA1 7251d18b467b223e47f701441755dd9024b5bae3 inc/Module/Install/Win32.pm
+SHA1 f26db2ac159e74255f336a28e162cc0990db9299 inc/Module/Install/WriteAll.pm
+SHA1 9d888e1123974c6580aa39154532fe59d83ac460 lib/Class/Method/Modifiers.pm
 SHA1 6f3b8a6e575cc8d0eece43f6aaedbcbbc7668eeb t/000-load.t
-SHA1 9b5d423597da7171382ebb40c444b6e78a9a746a t/001-error.t
+SHA1 25737022516ac01fffd8aadc9aca3ebd1a2c2469 t/001-error.t
 SHA1 0d6df65326f1c1c5aed1327b56dd0395758dab44 t/002-cache.t
 SHA1 abb21c93d659e8a2e4d1a648fe91bd8d54e582de t/003-basic.t
 SHA1 d25f23b3fb8f34517bddc701c928366dd82f423b t/004-around.t
@@ -55,7 +55,7 @@ SHA1 84fcad7704b445101e2008e5a9df303d0d06627f t/101-bank-account.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.7 (Darwin)
 
-iD8DBQFIZE+IsxfQtHhyRPoRAlnTAJ42M3z6OWWBFBocueRmausURodxuQCeJUV7
-VDOcxtumapVeYhpiKsat+Bg=
-=Sug8
+iD8DBQFKI0wpsxfQtHhyRPoRAj+xAJ97XgHVRM0z/CFFqw8V8/nvjurlmQCgnOMZ
+X1sk3P3S1NhToijmIManOI8=
+=NFe5
 -----END PGP SIGNATURE-----

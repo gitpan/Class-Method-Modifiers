@@ -1,11 +1,8 @@
-#!/usr/bin/env perl
 package Class::Method::Modifiers;
 use strict;
 use warnings;
 
-use MRO::Compat;
-
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 use base 'Exporter';
 our @EXPORT = qw(before after around);
@@ -96,8 +93,11 @@ sub _install_modifier {
                     if (wantarray) {
                         @ret = $$wrapped->(@_);
                     }
-                    else {
+                    elsif (defined wantarray) {
                         $ret[0] = $$wrapped->(@_);
+                    }
+                    else {
+                        $$wrapped->(@_);
                     }
 
                     $_->(@_) for @$after;
