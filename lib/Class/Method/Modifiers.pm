@@ -2,7 +2,7 @@ package Class::Method::Modifiers;
 use strict;
 use warnings;
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 use base 'Exporter';
 our @EXPORT = qw(before after around);
@@ -11,8 +11,6 @@ our %EXPORT_TAGS = (
     moose => [qw(before after around)],
     all   => \@EXPORT_OK,
 );
-
-use Carp 'confess';
 
 our %MODIFIER_CACHE;
 
@@ -23,8 +21,10 @@ sub _install_modifier {
     my @names = @_;
 
     for my $name (@names) {
-        my $hit = $into->can($name)
-            or confess "The method '$name' is not found in the inheritance hierarchy for class $into";
+        my $hit = $into->can($name) or do {
+            require Carp;
+            Carp::confess "The method '$name' is not found in the inheritance hierarchy for class $into";
+        };
 
         my $qualified = $into.'::'.$name;
         my $cache = $MODIFIER_CACHE{$into}{$name} ||= {
@@ -49,7 +49,8 @@ sub _install_modifier {
             #        my $code = *{$package.'::'.$name}{CODE};
             #        goto $code if $code;
             #    }
-            #    confess "$qualified\::$name disappeared?";
+            #    require Carp;
+            #    Carp::confess "$qualified\::$name disappeared?";
             #};
         }
 
@@ -185,8 +186,8 @@ L<Term::VT102::ZeroBased> for an example of subclassing with CMM.
 In short, C<Class::Method::Modifiers> solves the problem of making sure you
 call C<< $self->SUPER::foo(@_) >>, and provides a cleaner interface for it.
 
-As of version 1.00, C<Class::Method::Modifiers> is faster than L<Moose>. See
-C<benchmark/method_modifiers.pl> in the L<Moose> distribution.
+As of version 1.00, C<Class::Method::Modifiers> is faster in some cases than
+L<Moose>. See C<benchmark/method_modifiers.pl> in the L<Moose> distribution.
 
 =head1 MODIFIERS
 
@@ -289,13 +290,7 @@ CLOS
 
 =head1 AUTHOR
 
-Shawn M Moore, C<< <sartak at gmail.com> >>
-
-=head1 BUGS
-
-Please report any bugs through RT: email
-C<bug-class-method-modifiers at rt.cpan.org>, or browse to
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Class-Method-Modifiers>.
+Shawn M Moore, C<sartak@gmail.com>
 
 =head1 ACKNOWLEDGEMENTS
 
@@ -304,9 +299,9 @@ method modifiers otherwise.
 
 Thanks to Matt Trout and Stevan Little for their advice.
 
-=head1 COPYRIGHT & LICENSE
+=head1 COPYRIGHT AND LICENSE
 
-Copyright 2007-2008 Shawn M Moore.
+Copyright 2007-2009 Shawn M Moore.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

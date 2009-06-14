@@ -1,25 +1,25 @@
 ---
 abstract: 'provides Moose-like method modifiers'
 author:
-  - 'Shawn M Moore, C<< <sartak at gmail.com> >>'
+  - 'Shawn M Moore, C<sartak@gmail.com>'
 build_requires:
   ExtUtils::MakeMaker: 6.42
   Test::Exception: 0
-  Test::More: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.89'
+generated_by: 'Module::Install version 0.91'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-module_name: Class::Method::Modifiers
 name: Class-Method-Modifiers
 no_index:
   directory:
     - inc
     - t
 resources:
+  homepage: http://github.com/sartak/Class-Method-Modifiers/tree
   license: http://dev.perl.org/licenses/
-version: 1.02
+  repository: git://github.com/sartak/Class-Method-Modifiers.git
+version: 1.03
