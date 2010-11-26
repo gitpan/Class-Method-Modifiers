@@ -2,7 +2,7 @@ package Class::Method::Modifiers;
 use strict;
 use warnings;
 
-our $VERSION = '1.05';
+our $VERSION = '1.06';
 
 use base 'Exporter';
 our @EXPORT = qw(before after around);
@@ -23,6 +23,8 @@ sub install_modifier {
     my $type  = shift;
     my $code  = pop;
     my @names = @_;
+
+    @names = @{ $names[0] } if ref($names[0]) eq 'ARRAY';
 
     for my $name (@names) {
         my $hit = $into->can($name) or do {
@@ -161,9 +163,14 @@ Class::Method::Modifiers - provides Moose-like method modifiers
         return $ret =~ /\d/ ? $ret : lc $ret;
     };
 
+    after 'private', 'protected' => sub {
+        debug "finished calling a dangerous method";
+    };
+
+
 =head1 DESCRIPTION
 
-Method modifiers are a powerful feature from the CLOS (Common Lisp Object
+Method modifiers are a convenient feature from the CLOS (Common Lisp Object
 System) world.
 
 In its most basic form, a method modifier is just a method that calls
