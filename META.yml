@@ -4,7 +4,7 @@ author:
   - 'Shawn M Moore, C<sartak@gmail.com>'
 build_requires:
   ExtUtils::MakeMaker: 6.42
-  Test::Exception: 0
+  Test::Fatal: 0
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
@@ -22,4 +22,4 @@ resources:
   homepage: http://github.com/sartak/Class-Method-Modifiers/tree
   license: http://dev.perl.org/licenses/
   repository: git://github.com/sartak/Class-Method-Modifiers.git
-version: 1.06
+version: 1.07

@@ -36,4 +36,3 @@ t/080-multiple-modifiers.t
 t/081-sub-and-modifier.t
 t/090-diamond.t
 t/100-class-mop-method-modifiers.t
-t/101-bank-account.t
