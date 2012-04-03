@@ -1,5 +1,6 @@
 Changes
 inc/Module/Install.pm
+inc/Module/Install/AuthorRequires.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
@@ -36,3 +37,4 @@ t/080-multiple-modifiers.t
 t/081-sub-and-modifier.t
 t/090-diamond.t
 t/100-class-mop-method-modifiers.t
+t/110-namespace-clean.t
