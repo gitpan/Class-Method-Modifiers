@@ -2,7 +2,7 @@ package Class::Method::Modifiers;
 use strict;
 use warnings;
 
-our $VERSION = '1.09';
+our $VERSION = '1.10';
 
 use base 'Exporter';
 our @EXPORT = qw(before after around);
@@ -119,6 +119,7 @@ sub install_modifier {
 
             no strict 'refs';
             no warnings 'redefine';
+            no warnings 'closure';
             eval $generated;
         };
     }

@@ -1,4 +1,6 @@
+.Makefile.PL.swp
 Changes
+Class-Method-Modifiers-1.10.tar.gz
 inc/Module/Install.pm
 inc/Module/Install/AuthorRequires.pm
 inc/Module/Install/Base.pm
