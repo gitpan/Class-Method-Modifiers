@@ -27,4 +27,4 @@ resources:
     type: git
     url: git://github.com/karenetheridge/Class-Method-Modifiers.git
     web: https://github.com/karenetheridge/Class-Method-Modifiers/tree
-version: 1.10
+version: 1.11
