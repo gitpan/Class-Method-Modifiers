@@ -23,8 +23,5 @@ no_index:
 resources:
   homepage: https://github.com/sartak/Class-Method-Modifiers/tree
   license: http://dev.perl.org/licenses/
-  repository:
-    type: git
-    url: git://github.com/sartak/Class-Method-Modifiers.git
-    web: https://github.com/sartak/Class-Method-Modifiers/tree
-version: 2.00
+  repository: git://github.com/sartak/Class-Method-Modifiers.git
+version: 2.01
