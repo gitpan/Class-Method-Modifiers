@@ -23,7 +23,7 @@ no_index:
 requires:
   perl: 5.8.0
 resources:
-  homepage: https://github.com/sartak/Class-Method-Modifiers/tree
+  homepage: https://github.com/karenetheridge/Class-Method-Modifiers/tree
   license: http://dev.perl.org/licenses/
-  repository: git://github.com/sartak/Class-Method-Modifiers.git
-version: 2.02
+  repository: git://github.com/karenetheridge/Class-Method-Modifiers.git
+version: 2.03
