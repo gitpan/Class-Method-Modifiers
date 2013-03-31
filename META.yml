@@ -21,9 +21,9 @@ no_index:
     - inc
     - t
 requires:
-  perl: 5.8.0
+  perl: 5.6.0
 resources:
   homepage: https://github.com/karenetheridge/Class-Method-Modifiers/tree
   license: http://dev.perl.org/licenses/
   repository: git://github.com/karenetheridge/Class-Method-Modifiers.git
-version: 2.03
+version: 2.04
