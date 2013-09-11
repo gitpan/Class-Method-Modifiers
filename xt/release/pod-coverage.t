@@ -1,12 +1,6 @@
-use strict;
-use warnings;
-use Test::More;
+#!perl
 
-BEGIN {
-  unless ($ENV{RELEASE_TESTING}) {
-    plan skip_all => 'these tests are for release candidate testing';
-  }
-}
+use Test::More;
 
 eval "use Test::Pod::Coverage 1.08";
 plan skip_all => "Test::Pod::Coverage 1.08 required for testing POD coverage"
