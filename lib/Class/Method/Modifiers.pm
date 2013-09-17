@@ -3,9 +3,9 @@ BEGIN {
   $Class::Method::Modifiers::AUTHORITY = 'cpan:SARTAK';
 }
 {
-  $Class::Method::Modifiers::VERSION = '2.05';
+  $Class::Method::Modifiers::VERSION = '2.06';
 }
-# git description: v2.04-21-g07244f7
+# git description: v2.05-3-gc2e3c64
 
 use strict;
 use warnings;

@@ -11,7 +11,7 @@ build_requires:
   Test::More: 0.94
   Test::Warnings: 0
 configure_requires:
-  Module::Build::Tiny: 0.027
+  ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
 generated_by: 'Dist::Zilla version 4.300038, CPAN::Meta::Converter version 2.132510'
 license: perl
@@ -27,7 +27,7 @@ no_index:
 provides:
   Class::Method::Modifiers:
     file: lib/Class/Method/Modifiers.pm
-    version: 2.05
+    version: 2.06
 requires:
   B: 0
   Carp: 0
@@ -40,7 +40,7 @@ resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=Class-Method-Modifiers
   homepage: https://github.com/karenetheridge/Class-Method-Modifiers
   repository: https://github.com/karenetheridge/Class-Method-Modifiers.git
-version: 2.05
+version: 2.06
 x_Dist_Zilla:
   perl:
     version: 5.019003
@@ -52,11 +52,11 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::PromptIfStale
       name: '@Author::ETHER/build'
-      version: 0.004
+      version: 0.005
     -
       class: Dist::Zilla::Plugin::PromptIfStale
       name: '@Author::ETHER/release'
-      version: 0.004
+      version: 0.005
     -
       class: Dist::Zilla::Plugin::ExecDir
       name: '@Author::ETHER/ExecDir'
@@ -103,15 +103,21 @@ x_Dist_Zilla:
             - ':ExecFiles'
             - '@Author::ETHER/Examples'
       name: '@Author::ETHER/Test::Compile'
-      version: 2.029
+      version: 2.030
     -
       class: Dist::Zilla::Plugin::Test::CheckDeps
       name: '@Author::ETHER/Test::CheckDeps'
       version: 0.007
     -
       class: Dist::Zilla::Plugin::NoTabsTests
+      config:
+        Dist::Zilla::Plugin::Test::NoTabs:
+          module_finder:
+            - ':InstallModules'
+          script_finder:
+            - ':ExecFiles'
       name: '@Author::ETHER/NoTabsTests'
-      version: 0.01
+      version: 0.02
     -
       class: Dist::Zilla::Plugin::EOLTests
       name: '@Author::ETHER/EOLTests'
@@ -237,9 +243,9 @@ x_Dist_Zilla:
       name: '@Author::ETHER/ReadmeAnyFromPod'
       version: 0.131500
     -
-      class: Dist::Zilla::Plugin::ModuleBuildTiny
-      name: '@Author::ETHER/ModuleBuildTiny'
-      version: 0.005
+      class: Dist::Zilla::Plugin::MakeMaker
+      name: '@Author::ETHER/MakeMaker'
+      version: 4.300038
     -
       class: Dist::Zilla::Plugin::InstallGuide
       name: '@Author::ETHER/InstallGuide'
@@ -309,6 +315,10 @@ x_Dist_Zilla:
       name: '@Author::ETHER/ConfirmRelease'
       version: 4.300038
     -
+      class: Dist::Zilla::Plugin::ContributorsFromGit
+      name: ContributorsFromGit
+      version: 0.006
+    -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':InstallModules'
       version: 4.300038
@@ -338,3 +348,12 @@ x_Dist_Zilla:
       is_trial: 0
     version: 4.300038
 x_authority: cpan:SARTAK
+x_contributors:
+  - 'Aaron Crane <arc@cpan.org>'
+  - 'David Steinbrunner <dsteinbrunner@pobox.com>'
+  - 'Graham Knop <haarg@haarg.org>'
+  - 'Justin Hunter <justin.d.hunter@gmail.com>'
+  - 'Karen Etheridge <ether@cpan.org>'
+  - 'Peter Rabbitson <ribasushi@cpan.org>'
+  - 'Shawn M Moore <code@sartak.org>'
+  - 'gfx <gfuji@cpan.org>'

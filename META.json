@@ -23,18 +23,20 @@
    "prereqs" : {
       "configure" : {
          "requires" : {
-            "Module::Build::Tiny" : "0.027"
+            "ExtUtils::MakeMaker" : "6.30"
          }
       },
       "develop" : {
          "requires" : {
             "Dist::Zilla" : "4.300038",
-            "Dist::Zilla::Plugin::ModuleBuildTiny" : "0.004",
+            "Dist::Zilla::Plugin::MakeMaker" : "0",
             "Dist::Zilla::PluginBundle::Author::ETHER" : "0.023",
             "Pod::Coverage::TrustPod" : "0",
             "Test::CPAN::Changes" : "0.19",
             "Test::CPAN::Meta" : "0",
             "Test::Kwalitee" : "1.08",
+            "Test::More" : "0",
+            "Test::NoTabs" : "0",
             "Test::Pod" : "1.41",
             "Test::Pod::Coverage" : "1.08"
          }
@@ -65,7 +67,7 @@
    "provides" : {
       "Class::Method::Modifiers" : {
          "file" : "lib/Class/Method/Modifiers.pm",
-         "version" : "2.05"
+         "version" : "2.06"
       }
    },
    "release_status" : "stable",
@@ -81,7 +83,7 @@
          "web" : "https://github.com/karenetheridge/Class-Method-Modifiers"
       }
    },
-   "version" : "2.05",
+   "version" : "2.06",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.019003"
@@ -95,12 +97,12 @@
          {
             "class" : "Dist::Zilla::Plugin::PromptIfStale",
             "name" : "@Author::ETHER/build",
-            "version" : "0.004"
+            "version" : "0.005"
          },
          {
             "class" : "Dist::Zilla::Plugin::PromptIfStale",
             "name" : "@Author::ETHER/release",
-            "version" : "0.004"
+            "version" : "0.005"
          },
          {
             "class" : "Dist::Zilla::Plugin::ExecDir",
@@ -161,7 +163,7 @@
                }
             },
             "name" : "@Author::ETHER/Test::Compile",
-            "version" : "2.029"
+            "version" : "2.030"
          },
          {
             "class" : "Dist::Zilla::Plugin::Test::CheckDeps",
@@ -170,8 +172,18 @@
          },
          {
             "class" : "Dist::Zilla::Plugin::NoTabsTests",
+            "config" : {
+               "Dist::Zilla::Plugin::Test::NoTabs" : {
+                  "module_finder" : [
+                     ":InstallModules"
+                  ],
+                  "script_finder" : [
+                     ":ExecFiles"
+                  ]
+               }
+            },
             "name" : "@Author::ETHER/NoTabsTests",
-            "version" : "0.01"
+            "version" : "0.02"
          },
          {
             "class" : "Dist::Zilla::Plugin::EOLTests",
@@ -331,9 +343,9 @@
             "version" : "0.131500"
          },
          {
-            "class" : "Dist::Zilla::Plugin::ModuleBuildTiny",
-            "name" : "@Author::ETHER/ModuleBuildTiny",
-            "version" : "0.005"
+            "class" : "Dist::Zilla::Plugin::MakeMaker",
+            "name" : "@Author::ETHER/MakeMaker",
+            "version" : "4.300038"
          },
          {
             "class" : "Dist::Zilla::Plugin::InstallGuide",
@@ -421,6 +433,11 @@
             "version" : "4.300038"
          },
          {
+            "class" : "Dist::Zilla::Plugin::ContributorsFromGit",
+            "name" : "ContributorsFromGit",
+            "version" : "0.006"
+         },
+         {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":InstallModules",
             "version" : "4.300038"
@@ -459,6 +476,16 @@
          "version" : "4.300038"
       }
    },
-   "x_authority" : "cpan:SARTAK"
+   "x_authority" : "cpan:SARTAK",
+   "x_contributors" : [
+      "Aaron Crane <arc@cpan.org>",
+      "David Steinbrunner <dsteinbrunner@pobox.com>",
+      "Graham Knop <haarg@haarg.org>",
+      "Justin Hunter <justin.d.hunter@gmail.com>",
+      "Karen Etheridge <ether@cpan.org>",
+      "Peter Rabbitson <ribasushi@cpan.org>",
+      "Shawn M Moore <code@sartak.org>",
+      "gfx <gfuji@cpan.org>"
+   ]
 }
 
