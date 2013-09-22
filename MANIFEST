@@ -1,3 +1,4 @@
+Build.PL
 Changes
 INSTALL
 LICENSE
@@ -10,6 +11,7 @@ dist.ini
 lib/Class/Method/Modifiers.pm
 t/00-check-deps.t
 t/00-compile.t
+t/00-report-prereqs.t
 t/000-load.t
 t/001-error.t
 t/002-cache.t
