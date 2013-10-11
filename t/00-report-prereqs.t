@@ -20,7 +20,6 @@ my @modules = qw(
   IPC::Open3
   List::Util
   Module::Build::Tiny
-  Test::CheckDeps
   Test::Fatal
   Test::More
   base

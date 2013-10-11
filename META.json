@@ -4,7 +4,7 @@
       "Shawn M Moore <sartak@gmail.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300039, CPAN::Meta::Converter version 2.132620",
+   "generated_by" : "Dist::Zilla version 4.300039, CPAN::Meta::Converter version 2.132830",
    "license" : [
       "perl_5"
    ],
@@ -24,7 +24,7 @@
       "configure" : {
          "requires" : {
             "ExtUtils::MakeMaker" : "6.30",
-            "Module::Build::Tiny" : "0.027"
+            "Module::Build::Tiny" : "0.028"
          }
       },
       "develop" : {
@@ -50,7 +50,7 @@
             "Carp" : "0",
             "Exporter" : "0",
             "base" : "0",
-            "perl" : "5.008",
+            "perl" : "5.006",
             "strict" : "0",
             "warnings" : "0"
          }
@@ -63,7 +63,6 @@
             "IO::Handle" : "0",
             "IPC::Open3" : "0",
             "List::Util" : "0",
-            "Test::CheckDeps" : "0.007",
             "Test::Fatal" : "0",
             "Test::More" : "0.94",
             "if" : "0"
@@ -73,7 +72,7 @@
    "provides" : {
       "Class::Method::Modifiers" : {
          "file" : "lib/Class/Method/Modifiers.pm",
-         "version" : "2.07"
+         "version" : "2.08"
       }
    },
    "release_status" : "stable",
@@ -82,17 +81,17 @@
          "mailto" : "bug-Class-Method-Modifiers@rt.cpan.org",
          "web" : "https://rt.cpan.org/Public/Dist/Display.html?Name=Class-Method-Modifiers"
       },
-      "homepage" : "https://github.com/karenetheridge/Class-Method-Modifiers",
+      "homepage" : "https://github.com/moose/Class-Method-Modifiers",
       "repository" : {
          "type" : "git",
-         "url" : "https://github.com/karenetheridge/Class-Method-Modifiers.git",
-         "web" : "https://github.com/karenetheridge/Class-Method-Modifiers"
+         "url" : "https://github.com/moose/Class-Method-Modifiers.git",
+         "web" : "https://github.com/moose/Class-Method-Modifiers"
       }
    },
-   "version" : "2.07",
+   "version" : "2.08",
    "x_Dist_Zilla" : {
       "perl" : {
-         "version" : "5.019003"
+         "version" : "5.019004"
       },
       "plugins" : [
          {
@@ -103,12 +102,12 @@
          {
             "class" : "Dist::Zilla::Plugin::PromptIfStale",
             "name" : "@Author::ETHER/build",
-            "version" : "0.005"
+            "version" : "0.007"
          },
          {
             "class" : "Dist::Zilla::Plugin::PromptIfStale",
             "name" : "@Author::ETHER/release",
-            "version" : "0.005"
+            "version" : "0.007"
          },
          {
             "class" : "Dist::Zilla::Plugin::ExecDir",
@@ -169,12 +168,7 @@
                }
             },
             "name" : "@Author::ETHER/Test::Compile",
-            "version" : "2.033"
-         },
-         {
-            "class" : "Dist::Zilla::Plugin::Test::CheckDeps",
-            "name" : "@Author::ETHER/Test::CheckDeps",
-            "version" : "0.008"
+            "version" : "2.034"
          },
          {
             "class" : "Dist::Zilla::Plugin::Test::NoTabs",
@@ -190,7 +184,7 @@
                }
             },
             "name" : "@Author::ETHER/Test::NoTabs",
-            "version" : "0.02"
+            "version" : "0.05"
          },
          {
             "class" : "Dist::Zilla::Plugin::EOLTests",
@@ -290,7 +284,7 @@
          {
             "class" : "Dist::Zilla::Plugin::GithubMeta",
             "name" : "@Author::ETHER/GithubMeta",
-            "version" : "0.38"
+            "version" : "0.42"
          },
          {
             "class" : "Dist::Zilla::Plugin::AutoMetaResources",
@@ -359,7 +353,7 @@
          {
             "class" : "Dist::Zilla::Plugin::MakeMaker::Fallback",
             "name" : "@Author::ETHER/MakeMaker::Fallback",
-            "version" : "0.001"
+            "version" : "0.002"
          },
          {
             "class" : "Dist::Zilla::Plugin::ModuleBuildTiny",
@@ -369,7 +363,7 @@
          {
             "class" : "Dist::Zilla::Plugin::InstallGuide",
             "name" : "@Author::ETHER/InstallGuide",
-            "version" : "1.200000"
+            "version" : "1.200001"
          },
          {
             "class" : "Dist::Zilla::Plugin::CopyFilesFromBuild",
@@ -394,12 +388,12 @@
          {
             "class" : "Dist::Zilla::Plugin::Git::CheckFor::MergeConflicts",
             "name" : "@Author::ETHER/Git::CheckFor::MergeConflicts",
-            "version" : "0.006"
+            "version" : "0.007"
          },
          {
             "class" : "Dist::Zilla::Plugin::Git::CheckFor::CorrectBranch",
             "name" : "@Author::ETHER/Git::CheckFor::CorrectBranch",
-            "version" : "0.006"
+            "version" : "0.007"
          },
          {
             "class" : "Dist::Zilla::Plugin::Git::Remote::Check",
@@ -455,6 +449,17 @@
             "class" : "Dist::Zilla::Plugin::ContributorsFromGit",
             "name" : "ContributorsFromGit",
             "version" : "0.006"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::Prereqs",
+            "config" : {
+               "Dist::Zilla::Plugin::Prereqs" : {
+                  "phase" : "runtime",
+                  "type" : "requires"
+               }
+            },
+            "name" : "RuntimeRequires",
+            "version" : "4.300039"
          },
          {
             "class" : "Dist::Zilla::Plugin::Prereqs",

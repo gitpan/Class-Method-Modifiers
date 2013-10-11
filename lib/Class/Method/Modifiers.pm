@@ -3,14 +3,16 @@ BEGIN {
   $Class::Method::Modifiers::AUTHORITY = 'cpan:SARTAK';
 }
 {
-  $Class::Method::Modifiers::VERSION = '2.07';
+  $Class::Method::Modifiers::VERSION = '2.08';
 }
-# git description: v2.06-4-g9502801
+# git description: v2.07-9-g9481a38
 
 use strict;
 use warnings;
 
-use base 'Exporter';
+# work around https://rt.cpan.org/Ticket/Display.html?id=89173
+use base ('Exp'.'orter');
+
 our @EXPORT = qw(before after around);
 our @EXPORT_OK = (@EXPORT, qw(fresh install_modifier));
 our %EXPORT_TAGS = (
