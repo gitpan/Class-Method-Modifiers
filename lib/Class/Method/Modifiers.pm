@@ -1,14 +1,13 @@
+use strict;
+use warnings;
 package Class::Method::Modifiers;
-{
-  $Class::Method::Modifiers::VERSION = '2.09';
-}
-# git description: v2.08-4-g82f0517
-
 BEGIN {
   $Class::Method::Modifiers::AUTHORITY = 'cpan:SARTAK';
 }
-use strict;
-use warnings;
+# git description: v2.09-5-gb272828
+$Class::Method::Modifiers::VERSION = '2.10';
+# ABSTRACT: Provides Moose-like method modifiers
+# vim: set ts=8 sw=4 tw=78 et :
 
 # work around https://rt.cpan.org/Ticket/Display.html?id=89173
 use base ('Exp'.'orter');
@@ -230,6 +229,10 @@ __END__
 
 Class::Method::Modifiers - provides Moose-like method modifiers
 
+=head1 VERSION
+
+version 2.10
+
 =head1 SYNOPSIS
 
     package Child;
@@ -437,7 +440,7 @@ to assign to an array lvalue method that has an C<after> modifier applied will
 result in an error.  Array lvalue methods are not well supported by perl in
 general, and should be avoided.
 
-=head1 VERSION
+=head1 MAJOR VERSION CHANGES
 
 =for stopwords reimplementation
 
@@ -478,4 +481,3 @@ This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut
-
