@@ -1,5 +1,9 @@
 Revision history for Class-Method-Modifiers
 
+2.11      2014-08-16 05:21:30Z
+        - add documentation for modifying multiple methods at once (mannih,
+          github #2)
+
 2.10      2014-03-04 19:04:00Z
         - installation switched to using only ExtUtils::MakeMaker, to allow
           for use on perl 5.6
